@@ -15,7 +15,10 @@ module M
     cattr_accessor :runs; self.runs = 0
     def perform; @@runs += 1; end    
   end
-  
+end
+
+class CustomJob < SimpleJob
+  def max_attempts; 3; end
 end
 
 describe Delayed::Job do
@@ -165,6 +168,17 @@ describe Delayed::Job do
     Delayed::Job.destroy_failed_jobs = true
 
     @job = Delayed::Job.create :payload_object => SimpleJob.new, :attempts => 50
+    @job.should_receive(:destroy)
+    @job.reschedule 'FAIL'
+
+    Delayed::Job.destroy_failed_jobs = default
+  end
+  
+  it "should allow jobs to override max_attemps and behave appropriately" do
+    default = Delayed::Job.destroy_failed_jobs
+    Delayed::Job.destroy_failed_jobs = true
+
+    @job = Delayed::Job.create :payload_object => CustomJob.new, :attempts => 5
     @job.should_receive(:destroy)
     @job.reschedule 'FAIL'
 

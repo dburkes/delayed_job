@@ -30,8 +30,9 @@ The library evolves around a delayed_jobs table which looks as follows:
 
 On failure, the job is scheduled again in 5 seconds + N ** 4, where N is the number of retries.
 
-The default MAX_ATTEMPTS is 25. After this, the job either deleted (default), or left in the database with "failed_at" set.
-With the default of 25 attempts, the last retry will be 20 days later, with the last interval being almost 100 hours.
+The default MAX_ATTEMPTS is 25- jobs can override this value by responding to :max_attempts. After this, the job 
+either deleted (default), or left in the database with "failed_at" set. With the default of 25 attempts, the last 
+retry will be 20 days later, with the last interval being almost 100 hours.
 
 The default MAX_RUN_TIME is 4.hours. If your job takes longer than that, another computer could pick it up. It's up to you to
 make sure your job doesn't exceed this time. You should set this to the longest time you think the job could take.
